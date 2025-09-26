@@ -2,6 +2,7 @@ import tkinter as tk
 from PIL import Image, ImageTk
 from tkinter import messagebox
 import control
+from canva import *
 
 class Tela:
     def __init__(self, master):
@@ -85,7 +86,14 @@ class Tela:
         if tupla[1] != nome and tupla[1] != senha:
             messagebox.showwarning("Aviso", "Usuario não cadastrado.")
         else:
-            messagebox.showinfo("Informação", "tá dentro")
+            self.chamar_canva()
+
+    def chamar_canva(self):
+        self.janela.destroy()
+        app = PaintClassicXP()
+        app.mainloop()
+
+    
 
 
 
