@@ -2,8 +2,18 @@ import tkinter as tk
 from PIL import Image, ImageTk
 from tkinter import messagebox
 import control
+import os
+
+base_dir = os.path.dirname(os.path.abspath(__file__))
+
+caminho_imagem = os.path.join(base_dir, "imagens", "logo.png")
+
+print("Caminho completo:", caminho_imagem)
+
 
 class Tela:
+    
+    
     def __init__(self, master):
         self.janela = master 
         self.janela.title("Título da tela")
@@ -18,7 +28,7 @@ class Tela:
         self.frame_01.place(relx=0.02, rely=0.02, relwidth=0.96, relheight=0.45)
 
         # Caminho da imagem
-        caminho_imagem = r"C:\Users\Samuel Machado\Documents\tkinterdozero\imagens\logo.png"
+        #caminho_imagem = r"C:\Users\Samuel Machimagens\logo.png"
         self.imagem_original = Image.open(caminho_imagem)
 
         # Label que receberá a imagem
