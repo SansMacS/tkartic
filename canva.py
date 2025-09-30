@@ -5,7 +5,7 @@ from PIL import Image, ImageDraw, ImageTk
 
 
 # ---- Configuração geral ----
-CANVAS_W, CANVAS_H = 800, 500
+CANVAS_W, CANVAS_H = 1020, 680
 BG_COLOR = (255, 255, 255, 255)
 MAX_HISTORY = 30
 DEFAULT_BUCKET_TOL = 16  # tolerância padrão para o balde
@@ -14,7 +14,8 @@ class PaintClassicXP(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Paint")
-        self.geometry("1000x700")
+        self.geometry("1200x780")
+        self.resizable(False, False)
 
         # Estado
         self.current_tool = "brush"  # brush, eraser, bucket, line, rect, oval

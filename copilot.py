@@ -1,4 +1,5 @@
 import ttkbootstrap as ttk
+import tkinter as tk
 from PIL import Image, ImageTk
 from tkinter import messagebox
 import control
@@ -8,59 +9,55 @@ class TelaInicial:
     def __init__(self, master):
         self.janela = master
         self.janela.title("Título da tela")
-        self.janela.geometry("700x700")
-        self.janela.resizable(True, True)
-        self.janela.maxsize(width=900, height=900)
-        self.janela.minsize(width=400, height=400)
+        self.janela.geometry("1200x780")
+        self.janela.resizable(False, False)
 
-        # Frame 01 (sem bd; use padding para espaçamento interno)
-        self.frame_01 = ttk.Frame(self.janela, bootstyle="dark", padding=4)
-        self.frame_01.place(relx=0.02, rely=0.02, relwidth=0.96, relheight=0.45)
+        # Frame principal
+        self.frm = ttk.Frame(self.janela, bootstyle="dark", padding=4)
+        self.frm.place(relx=0.02, rely=0.02, relwidth=0.96, relheight=0.96)
 
         # Caminho da imagem
         caminho_imagem = r"C:\Users\Samuel Machado\Documents\tkinterdozero\imagens\logo.png"
         self.imagem_original = Image.open(caminho_imagem)
 
-        # Label que receberá a imagem
-        self.label = ttk.Label(self.frame_01, bootstyle="dark")
-        self.label.pack(fill="both", expand=True)
-
-        # Vincula evento de redimensionamento
+        # Label da imagem (ocupa todo o frame)
+        self.label = ttk.Label(self.frm, bootstyle="dark")
+        self.label.place(relx=0, rely=0, relwidth=1, relheight=1)  # agora ocupa 100% do frame
         self.label.bind("<Configure>", self.redimensionar_imagem)
 
-        # Frame 02 (sem highlight*, use padding)
-        self.frame_02 = ttk.Frame(self.janela, bootstyle="dark", padding=10)
-        self.frame_02.place(relx=0.02, rely=0.55, relwidth=0.96, relheight=0.40)
-
         # Campo Nome
-        self.label_nome = ttk.Label(self.frame_02, text="Nome:", bootstyle="dark", font=("Arial", 14, "bold"))
-        self.label_nome.place(relx=0.15, rely=0.1, relwidth=0.2, relheight=0.18)
+        self.label_nome = ttk.Label(self.label, text="Nome:", font=("Arial", 30, "bold"), bootstyle="dark")
+        self.label_nome.place(relx=0.15, rely=0.45)
 
-        self.entry_nome = ttk.Entry(self.frame_02, font=("Arial", 14))
-        self.entry_nome.place(relx=0.38, rely=0.1, relwidth=0.45, relheight=0.18)
+        self.entry_nome = ttk.Entry(self.label, font=("Arial", 14))
+        self.entry_nome.place(relx=0.38, rely=0.45, relwidth=0.45, relheight=0.08)
 
         # Campo Senha
-        self.label_senha = ttk.Label(self.frame_02, text="Senha:", bootstyle="dark", font=("Arial", 14, "bold"))
-        self.label_senha.place(relx=0.15, rely=0.38, relwidth=0.2, relheight=0.18)
+        self.label_senha = ttk.Label(self.label, text="Senha:", bootstyle="dark", font=("Arial", 30, "bold"))
+        self.label_senha.place(relx=0.15, rely=0.60)
 
-        self.entry_senha = ttk.Entry(self.frame_02, font=("Arial", 14), show="*")
-        self.entry_senha.place(relx=0.38, rely=0.38, relwidth=0.45, relheight=0.18)
+        self.entry_senha = ttk.Entry(self.label, font=("Arial", 14), show="*")
+        self.entry_senha.place(relx=0.38, rely=0.60, relwidth=0.45, relheight=0.08)
 
         # Botões
-        self.botao_entrar = ttk.Button(self.frame_02, text="Entrar", command=self.entrar, bootstyle="success")
-        self.botao_entrar.place(relx=0.25, rely=0.7, relheight=0.2, relwidth=0.2)
+        self.botao_entrar = ttk.Button(self.label, text="Entrar", command=self.entrar,
+                                       bootstyle="success")
+        self.botao_entrar.place(relx=0.25, rely=0.8, relheight=0.1, relwidth=0.2)
 
-        self.botao_cadastrar = ttk.Button(self.frame_02, text="Cadastrar", bootstyle="danger", command=self.cadastrar)
-        self.botao_cadastrar.place(relx=0.55, rely=0.7, relheight=0.2, relwidth=0.2)
+        self.botao_cadastrar = ttk.Button(self.label, text="Cadastrar", bootstyle="danger",
+                                          command=self.cadastrar)
+        self.botao_cadastrar.place(relx=0.55, rely=0.8, relheight=0.1, relwidth=0.2)
 
         self.controle_usuarios = control.ControllerUsuario()
 
     def redimensionar_imagem(self, event):
-        largura, altura = event.width, event.height
-        imagem_redimensionada = self.imagem_original.resize((largura, altura), Image.LANCZOS)
-        self.imagem_tk = ImageTk.PhotoImage(imagem_redimensionada)
-        self.label.config(image=self.imagem_tk)
-        self.label.image = self.imagem_tk
+        largura = event.width
+        altura = event.height
+        if largura > 0 and altura > 0:
+            imagem_redimensionada = self.imagem_original.resize((largura, altura), Image.LANCZOS)
+            self.imagem_tk = ImageTk.PhotoImage(imagem_redimensionada)
+            self.label.config(image=self.imagem_tk)
+            self.label.image = self.imagem_tk
 
     def cadastrar(self):
         nome = self.entry_nome.get().strip()
@@ -92,13 +89,13 @@ class TelaInicial:
             messagebox.showwarning("Aviso", "Usuário não cadastrado.", parent=self.janela)
             return
 
-        # Assumindo que lista[0] é (id, nome, senha)
         tupla = lista[0]
         if len(tupla) < 3:
             messagebox.showwarning("Aviso", "Registro de usuário inválido.", parent=self.janela)
             return
 
-        _, nome_db, senha_db = tupla
+        nome_db = tupla[1]
+        senha_db = tupla[2]
 
         if nome_db == nome and senha_db == senha:
             self.chamar_canva()
@@ -107,23 +104,11 @@ class TelaInicial:
 
     def chamar_canva(self):
         self.janela.destroy()
-        app = PaintClassicXP()
-        app.mainloop()
+        paint = PaintClassicXP()
+        paint.mainloop()
 
 
 if __name__ == "__main__":
-    app = ttk.Window(themename="cerculean")
+    app = ttk.Window(themename="superhero")
     TelaInicial(app)
     app.mainloop()
-
-# app = ttk.Window(themename="sandstone")  # ou "yeti", "simplex", "journal"
-# # Define o fundo da janela
-# app.configure(bg="#f0f0f0")  # cinza claro clássico
-
-# # Ajusta fundo de frames ttk para acompanhar
-# style = ttk.Style()
-# style.configure("TFrame", background="#f0f0f0")
-# style.configure("TLabel", background="#f0f0f0")  # se usar labels planas
-
-# # ... resto da UI
-# app.mainloop()
