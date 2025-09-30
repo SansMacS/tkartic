@@ -8,7 +8,7 @@ from PIL import Image, ImageDraw, ImageTk
 
 from canva import *
 
-class RoomScreen(tk.Toplevel):
+class RoomScreen(tk.Tk):
     def __init__(self, master, room_code, user, is_owner):
         super().__init__(master)
         self.title(f"Sala {room_code}")
@@ -45,6 +45,7 @@ class RoomScreen(tk.Toplevel):
 
     def start_game(self):
         # lógica para iniciar partida
+        
         app = PaintClassicXP()
         app.mainloop()
         

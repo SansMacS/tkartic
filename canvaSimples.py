@@ -10,7 +10,7 @@ BG_COLOR = (255, 255, 255, 255)
 MAX_HISTORY = 30
 DEFAULT_BUCKET_TOL = 16  # tolerância padrão para o balde
 
-class PaintClassicXP(tk.Toplevel):
+class CanvasSimples(tk.Toplevel):
     def __init__(self):
         super().__init__()
         self.title("Paint")
@@ -38,7 +38,7 @@ class PaintClassicXP(tk.Toplevel):
         self._push_history()
 
         # UI
-        self._build_menubar()
+        
         self._build_left_toolbar()      # barra de ferramentas à esquerda
         self._build_center_canvas()     # canvas no centro
         self._build_bottom_palette()    # paleta de cores embaixo
@@ -49,48 +49,7 @@ class PaintClassicXP(tk.Toplevel):
         self.bind("<Control-z>", lambda e: self.undo())
 
     # ---------------- UI ----------------
-    def _build_menubar(self):
-        menubar = tk.Menu(self)
-
-        # Arquivo
-        file_menu = tk.Menu(menubar, tearoff=0)
-        file_menu.add_command(label="Novo", command=self.clear_all)
-        file_menu.add_command(label="Salvar...", command=self.save_png)
-        file_menu.add_command(label="Abrir...", command=self.open_image)
-        file_menu.add_separator()
-        file_menu.add_command(label="Sair", command=self.quit)
-        menubar.add_cascade(label="Arquivo", menu=file_menu)
-
-        # Editar
-        edit_menu = tk.Menu(menubar, tearoff=0)
-        edit_menu.add_command(label="Desfazer (Ctrl+Z)", command=self.undo)
-        edit_menu.add_command(label="Limpar", command=self.clear_all)
-        menubar.add_cascade(label="Editar", menu=edit_menu)
-
-        # Exibir (apenas marcador para lembrar o layout clássico)
-        view_menu = tk.Menu(menubar, tearoff=0)
-        view_menu.add_command(label="Barra de ferramentas", command=lambda: None)
-        menubar.add_cascade(label="Exibir", menu=view_menu)
-
-        # Imagem (opções de exemplo)
-        image_menu = tk.Menu(menubar, tearoff=0)
-        image_menu.add_command(label="Dimensões do canvas...", command=self._resize_canvas_dialog)
-        menubar.add_cascade(label="Imagem", menu=image_menu)
-
-        # Cores
-        color_menu = tk.Menu(menubar, tearoff=0)
-        color_menu.add_command(label="Editar cor primária...", command=self.choose_primary_color)
-        color_menu.add_command(label="Editar cor secundária...", command=self.choose_secondary_color)
-        color_menu.add_separator()
-        color_menu.add_command(label="Tolerância do balde...", command=self._set_bucket_tolerance_dialog)
-        menubar.add_cascade(label="Cores", menu=color_menu)
-
-        # Ajuda
-        help_menu = tk.Menu(menubar, tearoff=0)
-        help_menu.add_command(label="Ajuda", command=lambda: messagebox.showinfo("Ajuda", "Paint clássico em Tkinter.\nUse os botões à esquerda e a paleta abaixo."))
-        menubar.add_cascade(label="Ajuda", menu=help_menu)
-
-        self.config(menu=menubar)
+    
 
     def open_image(self):
         file_path = filedialog.askopenfilename(
@@ -479,5 +438,5 @@ class PaintClassicXP(tk.Toplevel):
         return x, y
 
 if __name__ == "__main__":
-    app = PaintClassicXP()
+    app = CanvasSimples()
     app.mainloop()
