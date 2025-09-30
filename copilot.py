@@ -3,6 +3,7 @@ from PIL import Image, ImageTk
 from tkinter import messagebox
 import control
 from canva import *
+from room_screen import *
 
 class Tela:
     def __init__(self, master):
@@ -19,7 +20,7 @@ class Tela:
         self.frame_01.place(relx=0.02, rely=0.02, relwidth=0.96, relheight=0.45)
 
         # Caminho da imagem
-        caminho_imagem = r"C:\Users\Samuel Machado\Documents\tkinterdozero\imagens\logo.png"
+        caminho_imagem = "imagens\logo.png"
         self.imagem_original = Image.open(caminho_imagem)
 
         # Label que receberá a imagem
@@ -82,16 +83,22 @@ class Tela:
         nome = self.entry_nome.get()
         senha = self.entry_senha.get()
         lista = self.controle_usuarios.listar_usuario(nome, senha)
-        tupla = lista[0]
-        if tupla[1] != nome and tupla[1] != senha:
+        if len(lista) ==0:
             messagebox.showwarning("Aviso", "Usuario não cadastrado.")
         else:
             self.chamar_canva()
 
     def chamar_canva(self):
+        # Captura os valores ANTES de destruir a janela
+        nome = self.entry_nome.get()
+        # senha = self.entry_senha.get()  # se precisar também
+
         self.janela.destroy()
-        app = PaintClassicXP()
+
+        # Agora passa os valores para a próxima tela
+        app = RoomScreen(master=None, room_code="1234", user=nome, is_owner=True)
         app.mainloop()
+
 
     
 
