@@ -1,11 +1,11 @@
 import tkinter as tk
-from tkinter import filedialog, colorchooser, messagebox
+from tkinter import filedialog, colorchooser, messagebox, ttk
 from collections import deque
 from PIL import Image, ImageDraw, ImageTk
 
 
 # ---- Configuração geral ----
-CANVAS_W, CANVAS_H = 1020, 680
+CANVAS_W, CANVAS_H = 1020, 600
 BG_COLOR = (255, 255, 255, 255)
 MAX_HISTORY = 30
 DEFAULT_BUCKET_TOL = 16  # tolerância padrão para o balde
@@ -40,7 +40,6 @@ class Paint(tk.Tk):
         self._empurrar_historico()
 
         # UI
-
         self.construir_barra_ferramentas()      # barra de ferramentas à esquerda
         self.construir_canvas_centro()     # canvas no centro
         self.construir_paleta_inferior()    # paleta de cores embaixo
@@ -49,6 +48,8 @@ class Paint(tk.Tk):
         # Atalhos
         self.bind("<Control-s>", lambda e: self.salvar_png())
         self.bind("<Control-z>", lambda e: self.desfazer())
+        # Inicia contagem regressiva (2 minutos)
+        self.start_countdown(120)
 
     # ---------------- UI ----------------
     def construir_menubar(self):
@@ -148,8 +149,12 @@ class Paint(tk.Tk):
         center = tk.Frame(self, bg="#c0c0c0")  # cinza clássico ao redor
         center.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
+        # Caixa de texto acima da área de desenho (para título/nota)
+        self.caixa_texto = tk.Entry(center, width=80)
+        self.caixa_texto.pack(pady=(8, 4))
+
         self.canvas = tk.Canvas(center, bg="white", width=CANVAS_W, height=CANVAS_H, cursor="cross", highlightthickness=1, highlightbackground="#808080")
-        self.canvas.pack(padx=10, pady=10)
+        self.canvas.pack(padx=10, pady=4)
 
         self.image_item = self.canvas.create_image(0, 0, image=self.imagem_tk, anchor=tk.NW)
 
@@ -198,9 +203,21 @@ class Paint(tk.Tk):
             btn.bind("<Button-1>", lambda e, col=c: self.definir_primaria_hex(col))
             btn.bind("<Button-3>", lambda e, col=c: self.definir_secundaria_hex(col))
 
-        # Botões "Editar cores..."
-        tk.Button(palette, text="Editar cor primária...", command=self.escolher_cor_primaria).pack(side=tk.RIGHT, padx=10)
-        tk.Button(palette, text="Editar cor secundária...", command=self.escolher_cor_secundaria).pack(side=tk.RIGHT)
+    # Botões "Editar cores..." posicionados próximos às caixas de cor (mais perto da paleta)
+        btn_prim = tk.Button(box_frame, text="Editar cor primária...", command=self.escolher_cor_primaria)
+        btn_prim.grid(row=0, column=2, padx=(8, 4), pady=2)
+        btn_sec = tk.Button(box_frame, text="Editar cor secundária...", command=self.escolher_cor_secundaria)
+        btn_sec.grid(row=1, column=2, padx=(8, 4), pady=2)
+
+        # Barra de contagem regressiva e rótulo (antes do botão ENVIAR)
+        self.countdown_label = tk.Label(palette, text="02:00", bg="#dcdcdc")
+        self.countdown_label.pack(side=tk.RIGHT, padx=(8, 4), pady=8)
+        self.countdown_bar = ttk.Progressbar(palette, orient=tk.HORIZONTAL, length=180, mode='determinate', maximum=120)
+        self.countdown_bar.pack(side=tk.RIGHT, padx=(4, 8), pady=8)
+
+        # Botão ENVIAR no canto inferior direito da paleta
+        self.send_btn = tk.Button(palette, text="ENVIAR", bg="#4CAF50", fg="#fff", relief=tk.RAISED, command=self.enviar)
+        self.send_btn.pack(side=tk.RIGHT, padx=12, pady=8)
 
     def construir_barra_status(self):
         self.barra_status = tk.Label(self, text="Para ajuda, clique em Ajuda no menu Ajuda.", anchor="w",
@@ -246,6 +263,18 @@ class Paint(tk.Tk):
         _, hexcolor = colorchooser.askcolor(initialcolor=self.rgba_para_hex(self.cor_secundaria))
         if hexcolor:
             self.definir_secundaria_hex(hexcolor)
+
+    def enviar(self):
+        """Handler simples do botão ENVIAR: lê o texto da caixa de texto e mostra confirmação."""
+        try:
+            texto = self.caixa_texto.get().strip()
+        except Exception:
+            texto = ""
+        if not texto:
+            messagebox.showwarning("Enviar", "A caixa de texto está vazia.")
+            return
+        # Por enquanto apenas mostra uma confirmação. Pode ser estendido para salvar, enviar ao servidor, etc.
+        messagebox.showinfo("Enviado", f"Texto enviado:\n{texto}")
 
     # ---------------- Canvas/Raster helpers ----------------
     def atualizar_imagem_canvas(self):
@@ -481,6 +510,52 @@ class Paint(tk.Tk):
         x = max(0, min(self.imagem.width - 1, int(x)))
         y = max(0, min(self.imagem.height - 1, int(y)))
         return x, y
+
+    # ---------------- Contagem regressiva ----------------
+    def start_countdown(self, seconds):
+        """Inicia uma contagem regressiva em segundos e atualiza a barra e label."""
+        self._countdown_total = int(seconds)
+        self._countdown_remaining = int(seconds)
+        try:
+            # Inicializa visual
+            self.countdown_bar['maximum'] = self._countdown_total
+            self.countdown_bar['value'] = self._countdown_total
+            mins = self._countdown_remaining // 60
+            secs = self._countdown_remaining % 60
+            self.countdown_label.config(text=f"{mins:02d}:{secs:02d}")
+        except Exception:
+            pass
+        # Agendar ticks a cada segundo
+        self._tick_countdown()
+
+    def _tick_countdown(self):
+        if getattr(self, '_countdown_remaining', None) is None:
+            return
+        if self._countdown_remaining <= 0:
+            # Tempo esgotado: desabilita botão enviar
+            try:
+                self.send_btn.config(state=tk.DISABLED, bg="#9E9E9E")
+                self.countdown_label.config(text="00:00")
+                self.countdown_bar['value'] = 0
+            except Exception:
+                pass
+            return
+
+        # Atualiza display
+        self._countdown_remaining -= 1
+        try:
+            self.countdown_bar['value'] = self._countdown_remaining
+            mins = self._countdown_remaining // 60
+            secs = self._countdown_remaining % 60
+            self.countdown_label.config(text=f"{mins:02d}:{secs:02d}")
+        except Exception:
+            pass
+
+        # Re-agendar dentro de 1s
+        try:
+            self.after(1000, self._tick_countdown)
+        except Exception:
+            pass
 
 if __name__ == "__main__":
     app = Paint()

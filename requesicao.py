@@ -16,8 +16,8 @@ print(f"Servidor encontrado: {name} em {ip}:{port}")
 
 
 
-HOST = ip  # coloque aqui o IP da máquina do servidor
-PORT = int(port)
+HOST = '25.49.7.41'  # coloque aqui o IP da máquina do servidor
+PORT = 5000             # Porta TCP do servidor
 
 
 
@@ -31,6 +31,7 @@ def requestBD(pedido):
     client.sendall(pedido.encode())
 
     data = client.recv(4096).decode()
+    print("Resposta do servidor:", data)
     return json.loads(data)
 
     client.close()
