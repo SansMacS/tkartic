@@ -3,7 +3,9 @@ import tkinter as tk
 from PIL import Image, ImageTk
 from tkinter import messagebox
 import control
+import variaveis_globais
 from home import *
+
 
 class TelaInicial:
     def __init__(self, master):
@@ -66,15 +68,17 @@ class TelaInicial:
             messagebox.showwarning("Aviso", "Todos os campos são obrigatórios", parent=self.janela)
             return
 
-        retorno = self.controlador_usuarios.inserir_usuario(nome, senha)
-        if retorno == 1:
-            messagebox.showinfo("Informação", "Cadastro realizado.", parent=self.janela)
-            self.ent_nome.delete(0, "end")
-            self.ent_senha.delete(0, "end")
-        else:
-            messagebox.showwarning("Aviso", "Não foi possível cadastrar o usuário.", parent=self.janela)
+        #retorno = 
+        self.controlador_usuarios.inserir_usuario(nome, senha)
+        # if retorno == 1:
+        #     messagebox.showinfo("Informação", "Cadastro realizado.", parent=self.janela)
+        #     self.ent_nome.delete(0, "end")
+        #     self.ent_senha.delete(0, "end")
+        # else:
+        #     messagebox.showwarning("Aviso", "Não foi possível cadastrar o usuário.", parent=self.janela)
 
-    def entrar(self):
+    def entrar(self):  # <- avisa que vai usar a variável global
+
         nome = self.ent_nome.get().strip()
         senha = self.ent_senha.get().strip()
 
@@ -97,9 +101,11 @@ class TelaInicial:
         senha_db = tupla[2]
 
         if nome_db == nome and senha_db == senha:
+            variaveis_globais.lista_global = lista   # <- salva na variável global
             self.chamar_home()
         else:
             messagebox.showwarning("Aviso", "Nome ou senha incorretos.", parent=self.janela)
+
 
     def chamar_home(self):
         # Abre a tela Home como um Toplevel e esconde a janela de login

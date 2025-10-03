@@ -1,6 +1,7 @@
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 import tkinter as tk
+import control 
 
 class TelaHome:
     def __init__(self, master):
@@ -35,8 +36,7 @@ class TelaHome:
 
         btn_criar = ttk.Button(
             botoes_frame, text="Criar Sala",
-            bootstyle=INFO, width=25, padding=20
-        )
+            bootstyle=INFO, width=25, padding=20, command=self.criar_sala)
         btn_criar.pack(pady=25)
 
         # Botão SAIR
@@ -46,6 +46,20 @@ class TelaHome:
             command=self.janela.destroy
         )
         btn_sair.place(relx=0.95, rely=0.95, anchor="se")
+
+    def criar_sala(self):
+        """Cria uma nova sala no banco de dados"""
+        controlador_sala = control.ControllerSala()
+        resultado = controlador_sala.inserir_sala()
+        controlador_usuarios = control.ControllerUsuario()
+        controlador_usuarios.editar_sala()
+        if resultado == 1:
+            tk.messagebox.showinfo("Sucesso", "Sala criada com sucesso!")
+        else:
+            tk.messagebox.showerror("Erro", "Falha ao criar a sala.")
+
+        
+
 
     def abrir_inserir_codigo(self):
         """Abre a tela Inserir Código"""
